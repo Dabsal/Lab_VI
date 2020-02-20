@@ -1,0 +1,33 @@
+{
+  search(query:"stars:>100", type:REPOSITORY, first:100){
+    nodes{
+      ... on Repository
+      {
+        nameWithOwner
+        url
+        primaryLanguage
+        {
+          name
+        }
+        acceptedPullRequests: pullRequests(states:MERGED)
+        {
+          totalCount
+        }
+        releases
+        {
+          totalCount
+        }
+        closedIssues: issues(states:CLOSED)
+        {
+          totalCount
+        }
+        totalIssues: issues
+        {
+          totalCount
+        }
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}
