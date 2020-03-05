@@ -56,7 +56,7 @@ json = {
     "query":finalQuery, "variables":{}
 }
 
-token = 'cd0dca10980a5ad002a9fc6cac6b402f4ba4209f'
+token = '020036ac3d6921485c40940f29d8bd7dc2afcbc0'
 headers = {"Authorization": "Bearer " + token} 
 
 total_pages = 1
@@ -65,7 +65,8 @@ result = run_query(json, headers)
 
 nodes = result['data']['search']['nodes']
 next_page  = result["data"]["search"]["pageInfo"]["hasNextPage"]
-print ("Fim da página 1")
+
+print ("\n\nFim da página 1\n\n")
 #paginating
 while (next_page and total_pages < 3):
     total_pages += 1
@@ -75,11 +76,11 @@ while (next_page and total_pages < 3):
     result = run_query(json, headers)
     nodes += result['data']['search']['nodes']
     next_page  = result["data"]["search"]["pageInfo"]["hasNextPage"]
-    pagina = str(total_pages)
-    print("Fim da página " + pagina)
-
+    pagina = str(total_pages)    
+    print("\n\nFim da página " + pagina + "\n\n")
+#print(nodes)
 for node in nodes:
-    with open("result.csv", 'a') as the_file:
+    with open("/result.csv", 'a') as the_file:
         the_file.write(node['nameWithOwner'] + "\n") 
 
 print("TERMINOU")
