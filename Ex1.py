@@ -1,7 +1,7 @@
 import requests
 
 def run_query(json, headers): # A simple function to use requests.post to make the API call. 
-
+    
     request = requests.post('https://api.github.com/graphql', json=json, headers=headers)
     if request.status_code == 200:
         return request.json()
@@ -10,10 +10,10 @@ def run_query(json, headers): # A simple function to use requests.post to make t
         raise Exception("Query failed to run by returning code of {}. {}."
                         .format(request.status_code, json['query'],
                                 json['variables']))
-
+after = "null"
 query = """
 {
-  search(query:"stars:>100", type:REPOSITORY, first:5){
+  search(query:"stars:>100", type:REPOSITORY, first:5{AFTER}){
     nodes{
       ... on Repository
       {
@@ -42,26 +42,44 @@ query = """
         createdAt
         updatedAt
       }
+    }    
+    pageInfo{
+      hasNextPage
+      endCursor
     }
   }
 }
     """
-finalQuery = query.replace("{AFTER}","")
+finalQuery = query.replace("{AFTER}", "")
+
 json = {
-    "query": finalQuery, "variables": {}
+    "query":finalQuery, "variables":{}
 }
 
-token = 'f240a57a8d0c05e66138eee8af013f036acd565f'
-headers = {
-    "Authorization": "Bearer " + token,
-}
+token = 'cd0dca10980a5ad002a9fc6cac6b402f4ba4209f'
+headers = {"Authorization": "Bearer " + token} 
+
+total_pages = 1
 
 result = run_query(json, headers)
-ans = result['data']['search']['nodes']
 
-#if(result['data']['search']['pageInfo']['hasNextPage']):
-#    finalQuery = query.replace("{AFTER}", ", after:\"" + result['data']['search']['pageInfo']['endCursor'] + "\"")
-#    result = run_query(json, headers)
-#    ans += result['data']['search']['nodes']
+nodes = result['data']['search']['nodes']
+next_page  = result["data"]["search"]["pageInfo"]["hasNextPage"]
+print ("Fim da página 1")
+#paginating
+while (next_page and total_pages < 3):
+    total_pages += 1
+    cursor = result["data"]["search"]["pageInfo"]["endCursor"]
+    next_query = query.replace("{AFTER}", ", after: \"%s\"" % cursor)
+    json["query"] = next_query
+    result = run_query(json, headers)
+    nodes += result['data']['search']['nodes']
+    next_page  = result["data"]["search"]["pageInfo"]["hasNextPage"]
+    pagina = str(total_pages)
+    print("Fim da página " + pagina)
 
-print(ans)
+for node in nodes:
+    with open("result.csv", 'a') as the_file:
+        the_file.write(node['nameWithOwner'] + "\n") 
+
+print("TERMINOU")
