@@ -1,4 +1,5 @@
 import requests
+import time
 
 def run_query(json, headers): # A simple function to use requests.post to make the API call. 
     
@@ -56,7 +57,7 @@ json = {
     "query":finalQuery, "variables":{}
 }
 
-token = '020036ac3d6921485c40940f29d8bd7dc2afcbc0'
+token = ''
 headers = {"Authorization": "Bearer " + token} 
 
 total_pages = 1
@@ -66,9 +67,9 @@ result = run_query(json, headers)
 nodes = result['data']['search']['nodes']
 next_page  = result["data"]["search"]["pageInfo"]["hasNextPage"]
 
-print ("\n\nFim da página 1\n\n")
+print ("\nFim da página 1")
 #paginating
-while (next_page and total_pages < 3):
+while (next_page and total_pages < 5):
     total_pages += 1
     cursor = result["data"]["search"]["pageInfo"]["endCursor"]
     next_query = query.replace("{AFTER}", ", after: \"%s\"" % cursor)
@@ -77,10 +78,17 @@ while (next_page and total_pages < 3):
     nodes += result['data']['search']['nodes']
     next_page  = result["data"]["search"]["pageInfo"]["hasNextPage"]
     pagina = str(total_pages)    
-    print("\n\nFim da página " + pagina + "\n\n")
+    time.sleep(0.1)
+    print("\nFim da página " + pagina)
 #print(nodes)
-for node in nodes:
-    with open("/result.csv", 'a') as the_file:
-        the_file.write(node['nameWithOwner'] + "\n") 
+linguagem = ''
+with open("result.csv", 'a') as the_file:
+    for node in nodes:
+      if node['primaryLanguage']['name'] is not None:
+        linguagem = str(node['primaryLanguage']['name'])
+      else:
+        linguagem = ''
+
+        the_file.write(str(node['nameWithOwner']) + "\t" + str(node['primaryLanguage']['name']) + "\t" + str(node['acceptedPullRequests']['totalCount']) + "\t" + str(node['releases']['totalCount']) + "\t" + str(node['closedIssues']['totalCount']) + "\t" + str(node['totalIssues']['totalCount']) + "\t" + str(node['createdAt']) + "\t" + str(node['updatedAt']) + "\t" + "\n") 
 
 print("TERMINOU")
