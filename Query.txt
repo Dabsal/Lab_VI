@@ -1,4 +1,3 @@
-query = """
 {
   search(query:"stars:>100", type:REPOSITORY, first:10{AFTER}){
     nodes{
@@ -29,7 +28,10 @@ query = """
         createdAt
         updatedAt
       }
+    }    
+    pageInfo{
+      hasNextPage
+      endCursor
     }
   }
 }
-    """
